@@ -1,0 +1,32 @@
+version: '3.8'
+
+volumes:
+  couchdb-data:
+    name: ${VOLUME_NAME}
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DATADIR_ON_HOST}
+      o: bind
+
+services:
+  couchdb:
+    hostname: ${HOSTNAME}
+    container_name: ${CONTAINER_NAME}
+    build:
+      context: .
+      dockerfile: ./image/Dockerfile
+    image: couchdb_custom
+    restart: unless-stopped
+    env_file:
+      - .env      
+    ports:
+      - "${PORT1}:4369"  #For Clustering
+      - "${PORT2}:5984"  #HTTP Port
+      - "${PORT3}:6984"  #HTTPS Port
+      - "${PORT4}:9100"  #For Clustering
+    environment:
+      - COUCHDB_USER=${ADMIN_USER}
+      - COUCHDB_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+        - couchdb-data:/opt/couchdb/data
